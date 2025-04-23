@@ -1,6 +1,18 @@
 "use client"
 
 import { useState } from "react"
+
+interface Milestone {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  type: string;
+  deadline: string;
+  progress: number;
+  category: string;
+  timeEstimate: string;
+}
 import Link from "next/link"
 import {
   BookOpen,
@@ -167,13 +179,13 @@ export default function RoadmapPlanner() {
   }
 
   // Filter milestones based on showCompleted setting
-  const filterMilestones = (milestones) => {
+  function filterMilestones(milestones: Milestone[]): Milestone[] {
     if (showCompleted) return milestones
-    return milestones.filter((milestone) => milestone.status !== "completed")
+    return milestones.filter((milestone: Milestone) => milestone.status !== "completed")
   }
 
   // Get all milestones in a flat array
-  const allMilestones = [
+  const allMilestones: Milestone[] = [
     ...roadmapData.education,
     ...roadmapData.skills,
     ...roadmapData.applications,
@@ -181,7 +193,7 @@ export default function RoadmapPlanner() {
   ]
 
   // Calculate overall progress
-  const overallProgress = allMilestones.reduce((sum, milestone) => sum + milestone.progress, 0) / allMilestones.length
+  const overallProgress = allMilestones.reduce((sum, milestone) => sum + (milestone.progress || 0), 0) / allMilestones.length
 
   return (
     <div className="container mx-auto p-4 md:p-6">
@@ -568,7 +580,7 @@ export default function RoadmapPlanner() {
   )
 }
 
-function MilestoneCard({ milestone }) {
+function MilestoneCard({ milestone }: { milestone: Milestone }) {
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -630,7 +642,7 @@ function MilestoneCard({ milestone }) {
   )
 }
 
-function formatDate(dateString) {
+function formatDate(dateString: string): string {
   const date = new Date(dateString)
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }

@@ -16,6 +16,25 @@ import { Label } from "@/components/ui/label"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 
+interface Skill {
+  id: string;
+  name: string;
+  category: string;
+  userLevel: number;
+  targetLevel: number;
+  importance: string;
+  description: string;
+  resources: number;
+  industries: string[];
+}
+
+interface CareerPath {
+  id: string;
+  title: string;
+  match: number;
+  keySkills: string[];
+}
+
 export default function SkillsHub() {
   const [selectedCareer, setSelectedCareer] = useState("data-scientist")
   const [searchQuery, setSearchQuery] = useState("")
@@ -26,6 +45,7 @@ export default function SkillsHub() {
   const skillsData = {
     technical: [
       {
+        id: "python",
         name: "Python Programming",
         userLevel: 75,
         targetLevel: 90,
@@ -36,6 +56,7 @@ export default function SkillsHub() {
         resources: 12,
       },
       {
+        id: "sql",
         name: "SQL & Databases",
         userLevel: 60,
         targetLevel: 85,
@@ -46,6 +67,7 @@ export default function SkillsHub() {
         resources: 8,
       },
       {
+        id: "data-visualization",
         name: "Data Visualization",
         userLevel: 70,
         targetLevel: 80,
@@ -56,6 +78,7 @@ export default function SkillsHub() {
         resources: 15,
       },
       {
+        id: "machine-learning",
         name: "Machine Learning",
         userLevel: 40,
         targetLevel: 75,
@@ -66,6 +89,7 @@ export default function SkillsHub() {
         resources: 20,
       },
       {
+        id: "statistics",
         name: "Statistical Analysis",
         userLevel: 65,
         targetLevel: 80,
@@ -76,6 +100,7 @@ export default function SkillsHub() {
         resources: 10,
       },
       {
+        id: "cloud-computing",
         name: "Cloud Computing",
         userLevel: 30,
         targetLevel: 70,
@@ -86,6 +111,7 @@ export default function SkillsHub() {
         resources: 14,
       },
       {
+        id: "big-data",
         name: "Big Data Technologies",
         userLevel: 25,
         targetLevel: 65,
@@ -98,6 +124,7 @@ export default function SkillsHub() {
     ],
     soft: [
       {
+        id: "communication",
         name: "Communication",
         userLevel: 80,
         targetLevel: 85,
@@ -108,6 +135,7 @@ export default function SkillsHub() {
         resources: 6,
       },
       {
+        id: "problem-solving",
         name: "Problem Solving",
         userLevel: 85,
         targetLevel: 90,
@@ -118,6 +146,7 @@ export default function SkillsHub() {
         resources: 5,
       },
       {
+        id: "teamwork",
         name: "Teamwork",
         userLevel: 75,
         targetLevel: 80,
@@ -128,6 +157,7 @@ export default function SkillsHub() {
         resources: 4,
       },
       {
+        id: "project-management",
         name: "Project Management",
         userLevel: 60,
         targetLevel: 75,
@@ -138,6 +168,7 @@ export default function SkillsHub() {
         resources: 8,
       },
       {
+        id: "critical-thinking",
         name: "Critical Thinking",
         userLevel: 80,
         targetLevel: 85,
@@ -150,6 +181,7 @@ export default function SkillsHub() {
     ],
     domain: [
       {
+        id: "finance-knowledge",
         name: "Finance Knowledge",
         userLevel: 40,
         targetLevel: 70,
@@ -160,7 +192,8 @@ export default function SkillsHub() {
         resources: 11,
       },
       {
-        name: "Healthcare Systems",
+        id: "healthcare-domain",
+        name: "Healthcare Domain",
         userLevel: 20,
         targetLevel: 60,
         importance: "low",
@@ -170,6 +203,7 @@ export default function SkillsHub() {
         resources: 9,
       },
       {
+        id: "marketing-analytics",
         name: "Marketing Analytics",
         userLevel: 55,
         targetLevel: 75,
@@ -183,7 +217,7 @@ export default function SkillsHub() {
   }
 
   // Career paths with required skills
-  const careerPaths = [
+  const careerPaths: CareerPath[] = [
     {
       id: "data-scientist",
       title: "Data Scientist",
@@ -211,11 +245,11 @@ export default function SkillsHub() {
   ]
 
   // Get all skills in a flat array
-  const allSkills = [...skillsData.technical, ...skillsData.soft, ...skillsData.domain]
+  const allSkills: Skill[] = [...skillsData.technical, ...skillsData.soft, ...skillsData.domain]
 
   // Filter skills based on search query, category, and gap setting
-  const filterSkills = (skills) => {
-    return skills.filter((skill) => {
+  function filterSkills(skills: Skill[]): Skill[] {
+    return skills.filter((skill: Skill) => {
       const matchesSearch = skill.name.toLowerCase().includes(searchQuery.toLowerCase())
       const matchesCategory = selectedCategory === "all" || skill.category === selectedCategory
       const matchesGap = !showOnlyGaps || skill.userLevel < skill.targetLevel
@@ -246,7 +280,7 @@ export default function SkillsHub() {
   const skillGaps = getSkillGapsForCareer()
 
   // Calculate overall skill proficiency
-  const calculateOverallProficiency = (skills) => {
+  const calculateOverallProficiency = (skills: Skill[]): number => {
     if (skills.length === 0) return 0
     const sum = skills.reduce((acc, skill) => acc + skill.userLevel, 0)
     return Math.round(sum / skills.length)

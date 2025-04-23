@@ -1,6 +1,35 @@
 "use client"
 
 import { useState } from "react"
+import { type CheckedState } from "@radix-ui/react-checkbox"
+
+interface Internship {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  industry: string;
+  duration: string;
+  paid: boolean;
+  salary: string;
+  matchScore: number;
+  deadline: string;
+  description?: string;
+  requirements?: string[];
+  skills: string[];
+  applicationProcess?: string[];
+  companySize?: string;
+  companyRating?: number;
+  logo: string;
+  submittedDate?: string;
+  status?: string;
+  nextStep?: string;
+  completedRequirements?: number;
+  totalRequirements?: number;
+}
+
+type SortKey = "match" | "deadline" | "salary";
+
 import Link from "next/link"
 import {
   AlertCircle,
@@ -48,6 +77,20 @@ export default function InternshipExplorer() {
   const [showOnlyMatching, setShowOnlyMatching] = useState(false)
 
   // Sample internships data
+  const sortInternships = (a: Internship, b: Internship): number => {
+    if (sortBy === "match") return b.matchScore - a.matchScore
+    if (sortBy === "deadline") return new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
+    if (sortBy === "salary") {
+      if (a.paid && b.paid) {
+        const aSalary = Number.parseInt(a.salary.replace(/[^0-9]/g, ""))
+        const bSalary = Number.parseInt(b.salary.replace(/[^0-9]/g, ""))
+        return bSalary - aSalary
+      }
+      return a.paid ? -1 : 1
+    }
+    return 0
+  }
+
   const internshipsData = {
     recommended: [
       {
@@ -357,9 +400,9 @@ export default function InternshipExplorer() {
   ]
 
   // Filter internships based on search and filters
-  const filterInternships = (internships) => {
+  const filterInternships = (internships: Internship[]): Internship[] => {
     return internships
-      .filter((internship) => {
+      .filter((internship: Internship) => {
         const matchesSearch =
           internship.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           internship.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -390,34 +433,22 @@ export default function InternshipExplorer() {
 
         return matchesSearch && matchesLocation && matchesIndustry && matchesDuration && matchesPaid && matchesScore
       })
-      .sort((a, b) => {
-        if (sortBy === "match") return b.matchScore - a.matchScore
-        if (sortBy === "deadline") return new Date(a.deadline) - new Date(b.deadline)
-        if (sortBy === "salary") {
-          if (a.paid && b.paid) {
-            const aSalary = Number.parseInt(a.salary.replace(/[^0-9]/g, ""))
-            const bSalary = Number.parseInt(b.salary.replace(/[^0-9]/g, ""))
-            return bSalary - aSalary
-          }
-          return a.paid ? -1 : 1
-        }
-        return 0
-      })
+      .sort(sortInternships)
   }
 
   const filteredInternships = filterInternships(internshipsData.all)
 
   // Calculate days remaining until deadline
-  const getDaysRemaining = (deadlineDate) => {
+  const getDaysRemaining = (deadlineDate: string): number => {
     const today = new Date()
     const deadline = new Date(deadlineDate)
-    const diffTime = deadline - today
+    const diffTime = deadline.getTime() - today.getTime()
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     return diffDays
   }
 
   // Get urgency level based on days remaining
-  const getUrgencyLevel = (daysRemaining) => {
+  const getUrgencyLevel = (daysRemaining: number): string => {
     if (daysRemaining <= 7) return "high"
     if (daysRemaining <= 14) return "medium"
     return "low"
@@ -712,7 +743,7 @@ export default function InternshipExplorer() {
                           </div>
                           <div>
                             <div className="text-muted-foreground">Submitted On</div>
-                            <div className="font-medium">{formatDate(internship.submittedDate)}</div>
+                            <div className="font-medium">{internship.submittedDate ? formatDate(internship.submittedDate) : 'N/A'}</div>
                           </div>
                         </div>
 
@@ -854,7 +885,7 @@ export default function InternshipExplorer() {
                       <SelectItem value="all">Any Duration</SelectItem>
                       <SelectItem value="short">Short (≤ 3 months)</SelectItem>
                       <SelectItem value="medium">Medium (4-6 months)</SelectItem>
-                      <SelectItem value="long">Long (> 6 months)</SelectItem>
+                      <SelectItem value="long">Long ({'>'}6 months)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -876,7 +907,12 @@ export default function InternshipExplorer() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="show-matching">Show Only Matching</Label>
-                    <Checkbox id="show-matching" checked={showOnlyMatching} onCheckedChange={setShowOnlyMatching} />
+                    <Checkbox
+                      id="show-matching"
+                      checked={showOnlyMatching}
+                      onCheckedChange={(checked: CheckedState) => setShowOnlyMatching(checked === true)}
+                      className="mr-2"
+                    />
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Only show internships with a high match to your profile (70%+ match)
@@ -1318,7 +1354,7 @@ export default function InternshipExplorer() {
   )
 }
 
-function formatDate(dateString) {
+function formatDate(dateString: string): string {
   const date = new Date(dateString)
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }

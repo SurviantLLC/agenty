@@ -1,6 +1,34 @@
 "use client"
 
 import { useState } from "react"
+import { type CheckedState } from "@radix-ui/react-checkbox"
+
+interface Resource {
+  id: string;
+  title: string;
+  provider: string;
+  type: 'course' | 'project' | 'certification' | 'book' | 'other';
+  duration: string;
+  difficulty: string;
+  rating: number;
+  cost: string;
+  url: string;
+  description: string;
+}
+
+interface LearningPath {
+  id: string;
+  title: string;
+  description: string;
+  progress: number;
+  totalHours: number;
+  remainingHours: number;
+  skills: string[];
+  courses: number;
+  projects: number;
+  certifications: number;
+  lastUpdated: string;
+}
 import Link from "next/link"
 import {
   BookOpen,
@@ -102,7 +130,7 @@ export default function LearningPath() {
           id: "res-1",
           title: "Python for Data Science and Machine Learning Bootcamp",
           provider: "Udemy",
-          type: "course",
+          type: "course" as const,
           duration: "40 hours",
           difficulty: "Intermediate",
           rating: 4.8,
@@ -114,7 +142,7 @@ export default function LearningPath() {
           id: "res-2",
           title: "Advanced Python Programming",
           provider: "Coursera",
-          type: "course",
+          type: "course" as const,
           duration: "30 hours",
           difficulty: "Advanced",
           rating: 4.6,
@@ -126,7 +154,7 @@ export default function LearningPath() {
           id: "res-3",
           title: "Python Data Analysis Project",
           provider: "DataCamp",
-          type: "project",
+          type: "project" as const,
           duration: "10 hours",
           difficulty: "Intermediate",
           rating: 4.5,
@@ -138,7 +166,7 @@ export default function LearningPath() {
           id: "res-4",
           title: "Python Certified Associate Programmer",
           provider: "Python Institute",
-          type: "certification",
+          type: "other" as const,
           duration: "Study: 60 hours, Exam: 2 hours",
           difficulty: "Intermediate",
           rating: 4.7,
@@ -162,7 +190,7 @@ export default function LearningPath() {
           id: "res-5",
           title: "Machine Learning Specialization",
           provider: "Coursera",
-          type: "course",
+          type: "course" as const,
           duration: "80 hours",
           difficulty: "Intermediate",
           rating: 4.9,
@@ -174,7 +202,7 @@ export default function LearningPath() {
           id: "res-6",
           title: "Hands-On Machine Learning with Scikit-Learn",
           provider: "O'Reilly",
-          type: "book",
+          type: "book" as const,
           duration: "Self-paced",
           difficulty: "Intermediate",
           rating: 4.8,
@@ -198,7 +226,7 @@ export default function LearningPath() {
           id: "res-7",
           title: "Advanced SQL for Data Analysis",
           provider: "DataCamp",
-          type: "course",
+          type: "course" as const,
           duration: "25 hours",
           difficulty: "Advanced",
           rating: 4.7,
@@ -210,7 +238,7 @@ export default function LearningPath() {
           id: "res-8",
           title: "SQL Database Design and Optimization",
           provider: "Udemy",
-          type: "course",
+          type: "course" as const,
           duration: "20 hours",
           difficulty: "Intermediate",
           rating: 4.5,
@@ -226,10 +254,10 @@ export default function LearningPath() {
   const selectedSkillData = skillsData.find((skill) => skill.id === selectedSkill)
 
   // Filter resources based on search query
-  const filterResources = (resources) => {
+  const filterResources = (resources: Resource[]): Resource[] => {
     if (!searchQuery) return resources
-    return resources.filter(
-      (resource) =>
+
+    return resources.filter((resource: Resource) =>
         resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         resource.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         resource.provider.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -333,14 +361,19 @@ export default function LearningPath() {
 
               <div className="space-y-4 pt-2">
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="include-projects" checked={includeProjects} onCheckedChange={setIncludeProjects} />
+                  <Checkbox
+                    id="include-projects"
+                    checked={includeProjects}
+                    onCheckedChange={(checked: CheckedState) => setIncludeProjects(checked === true)}
+                    className="mr-2"
+                  />
                   <Label htmlFor="include-projects">Include hands-on projects</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="include-certifications"
                     checked={includeCertifications}
-                    onCheckedChange={setIncludeCertifications}
+                    onCheckedChange={(checked: CheckedState) => setIncludeCertifications(checked === true)}
                   />
                   <Label htmlFor="include-certifications">Include certification opportunities</Label>
                 </div>
@@ -751,7 +784,7 @@ export default function LearningPath() {
   )
 }
 
-function ResourceCard({ resource }) {
+function ResourceCard({ resource }: { resource: Resource }) {
   return (
     <Card>
       <CardContent className="p-4">
@@ -820,7 +853,7 @@ function ResourceCard({ resource }) {
   )
 }
 
-function formatDate(dateString) {
+function formatDate(dateString: string): string {
   const date = new Date(dateString)
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }

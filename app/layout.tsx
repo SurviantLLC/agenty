@@ -1,11 +1,8 @@
-import type { Metadata } from 'next'
+import * as React from 'react'
 import './globals.css'
+import { Sidebar } from '@/components/sidebar'
 
-export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.dev',
-}
+export { metadata } from './metadata'
 
 export default function RootLayout({
   children,
@@ -14,7 +11,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <div className="flex h-screen bg-gray-50">
+          <Sidebar />
+          <main className="flex-1 p-6 overflow-y-auto">
+            {children}
+          </main>
+        </div>
+      </body>
     </html>
   )
 }
+
+

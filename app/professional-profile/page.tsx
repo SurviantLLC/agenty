@@ -27,7 +27,47 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+
+interface ChartData {
+  month: string;
+  profit: number;
+}
+
+function parseCSV(text: string): ChartData[] {
+  return text.split('\n')
+    .filter(line => line.trim())
+    .map(line => {
+      const [month, profit] = line.split(',');
+      return {
+        month,
+        profit: parseFloat(profit)
+      };
+    });
+}
+
+function MonthlyProfitChart() {
+  const [data, setData] = useState<ChartData[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/monthly-profits');
+        const data = await response.json();
+        setData(data);
+      } catch (error) {
+        console.error('Error reading file:', error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  return (
+    <div className="w-full h-64">
+      {/* Chart implementation */}
+    </div>
+  );
+}
 
 export default function ProfessionalProfilePage() {
   const [date, setDate] = useState<Date>()

@@ -145,8 +145,10 @@ export default function CareerMatches() {
       return bAvg - aAvg
     }
     if (sortBy === "growth") {
-      const aGrowth = Number.parseInt(a.growth.match(/\d+/)[0])
-      const bGrowth = Number.parseInt(b.growth.match(/\d+/)[0])
+      const aMatch = a.growth.match(/\d+/)
+      const bMatch = b.growth.match(/\d+/)
+      const aGrowth = aMatch ? Number.parseInt(aMatch[0]) : 0
+      const bGrowth = bMatch ? Number.parseInt(bMatch[0]) : 0
       return bGrowth - aGrowth
     }
     return 0

@@ -32,7 +32,28 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-function formatDate(dateString) {
+interface Certification {
+  id: string;
+  title: string;
+  provider: string;
+  category: string;
+  difficulty: string;
+  duration: string;
+  cost: string;
+  costAmount: string;
+  rating: number;
+  reviews: number;
+  description: string;
+  skills: string[];
+  requirements?: string[];
+  benefits?: string[];
+  externalLink?: string;
+  popularity: number;
+  completionRate?: number;
+  image: string;
+}
+
+function formatDate(dateString: string): string {
   const date = new Date(dateString)
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }
@@ -350,8 +371,8 @@ export default function CertificationCenter() {
   ]
 
   // Filter certifications based on search and filters
-  const filterCertifications = (certifications) => {
-    return certifications.filter((cert) => {
+  const filterCertifications = (certifications: Certification[]): Certification[] => {
+    return certifications.filter((cert: Certification) => {
       const matchesSearch =
         cert.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         cert.provider.toLowerCase().includes(searchQuery.toLowerCase()) ||
