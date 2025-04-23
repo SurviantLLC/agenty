@@ -1,18 +1,7 @@
 "use client"
 
 import { useState } from "react"
-
-interface Milestone {
-  id: string;
-  title: string;
-  description: string;
-  status: string;
-  type: string;
-  deadline: string;
-  progress: number;
-  category: string;
-  timeEstimate: string;
-}
+import type { Milestone, RoadmapData } from "./types"
 import Link from "next/link"
 import {
   BookOpen,
@@ -46,7 +35,7 @@ export default function RoadmapPlanner() {
   const [showCompleted, setShowCompleted] = useState(true)
 
   // Sample roadmap data
-  const roadmapData = {
+  const roadmapData: RoadmapData = {
     education: [
       {
         id: "edu-1",
@@ -58,7 +47,7 @@ export default function RoadmapPlanner() {
         category: "education",
         description: "Master the basics of data analysis, statistics, and Python programming",
         timeEstimate: "40 hours",
-      },
+      } as Milestone,
       {
         id: "edu-2",
         title: "Enroll in Machine Learning Specialization",
@@ -69,7 +58,7 @@ export default function RoadmapPlanner() {
         category: "education",
         description: "5-course specialization covering supervised learning, neural networks, and more",
         timeEstimate: "120 hours",
-      },
+      } as Milestone,
       {
         id: "edu-3",
         title: "Complete SQL for Data Analysis",
@@ -80,7 +69,7 @@ export default function RoadmapPlanner() {
         category: "education",
         description: "Learn advanced SQL queries and database management for analytics",
         timeEstimate: "25 hours",
-      },
+      } as Milestone,
     ],
     skills: [
       {
@@ -93,7 +82,7 @@ export default function RoadmapPlanner() {
         category: "skills",
         description: "Create portfolio projects demonstrating data cleaning, visualization, and analysis",
         timeEstimate: "60 hours",
-      },
+      } as Milestone,
       {
         id: "skill-2",
         title: "Complete 30-Day Visualization Challenge",
@@ -104,7 +93,7 @@ export default function RoadmapPlanner() {
         category: "skills",
         description: "Daily practice creating different types of data visualizations",
         timeEstimate: "30 hours",
-      },
+      } as Milestone,
       {
         id: "skill-3",
         title: "Contribute to Open Source Data Project",
@@ -115,7 +104,7 @@ export default function RoadmapPlanner() {
         category: "skills",
         description: "Find and contribute to a data-focused open source project",
         timeEstimate: "40 hours",
-      },
+      } as Milestone,
     ],
     applications: [
       {
@@ -128,7 +117,7 @@ export default function RoadmapPlanner() {
         category: "applications",
         description: "Refresh resume to highlight data science skills and projects",
         timeEstimate: "5 hours",
-      },
+      } as Milestone,
       {
         id: "app-2",
         title: "Apply for Summer Data Science Internship",
@@ -137,9 +126,9 @@ export default function RoadmapPlanner() {
         status: "not-started",
         progress: 0,
         category: "applications",
-        description: "Submit applications to 5 target companies",
+        description: "Research and apply for summer internship opportunities",
         timeEstimate: "10 hours",
-      },
+      } as Milestone,
       {
         id: "app-3",
         title: "Prepare for Technical Interviews",
@@ -161,22 +150,22 @@ export default function RoadmapPlanner() {
         status: "not-started",
         progress: 0,
         category: "networking",
-        description: "Local data science community monthly gathering",
+        description: "Join local data science community meetup",
         timeEstimate: "3 hours",
-      },
+      } as Milestone,
       {
         id: "net-2",
-        title: "Connect with 10 Data Professionals",
-        type: "outreach",
+        title: "Connect with Industry Professionals",
+        type: "networking",
         deadline: "2024-06-30",
         status: "in-progress",
         progress: 40,
         category: "networking",
-        description: "Reach out to professionals in target companies for informational interviews",
-        timeEstimate: "15 hours",
-      },
+        description: "Build network with data professionals on LinkedIn",
+        timeEstimate: "ongoing",
+      } as Milestone,
     ],
-  }
+  } as const
 
   // Filter milestones based on showCompleted setting
   function filterMilestones(milestones: Milestone[]): Milestone[] {
@@ -581,60 +570,99 @@ export default function RoadmapPlanner() {
 }
 
 function MilestoneCard({ milestone }: { milestone: Milestone }) {
+  const statusStyles = {
+    completed: "bg-green-100 text-green-800 hover:bg-green-100",
+    "in-progress": "bg-amber-100 text-amber-800 hover:bg-amber-100",
+    "not-started": "bg-slate-100 text-slate-800 hover:bg-slate-100"
+  } as const;
+
+  const statusLabels = {
+    completed: "Completed",
+    "in-progress": "In Progress",
+    "not-started": "Not Started"
+  } as const;
+
+  const handleProgressUpdate = () => {
+    // In a real app, this would update the milestone in the database
+    console.log(`Updating progress for milestone: ${milestone.id}`);
+  };
+
+  const handleStatusChange = (newStatus: Milestone['status']) => {
+    // In a real app, this would update the milestone status in the database
+    console.log(`Changing status to ${newStatus} for milestone: ${milestone.id}`);
+  };
+
   return (
-    <Card>
+    <Card role="article" aria-labelledby={`milestone-${milestone.id}-title`}>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <Badge
             variant="outline"
-            className={
-              milestone.status === "completed"
-                ? "bg-green-100 text-green-800 hover:bg-green-100"
-                : milestone.status === "in-progress"
-                  ? "bg-amber-100 text-amber-800 hover:bg-amber-100"
-                  : "bg-slate-100 text-slate-800 hover:bg-slate-100"
-            }
+            className={statusStyles[milestone.status]}
+            role="status"
           >
-            {milestone.status === "completed"
-              ? "Completed"
-              : milestone.status === "in-progress"
-                ? "In Progress"
-                : "Not Started"}
+            {statusLabels[milestone.status]}
           </Badge>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8"
+                aria-label={`Actions for ${milestone.title}`}
+              >
                 <Settings className="h-4 w-4" />
-                <span className="sr-only">Open menu</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>Edit</DropdownMenuItem>
-              <DropdownMenuItem>Mark as Complete</DropdownMenuItem>
-              <DropdownMenuItem>Delete</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => console.log('Edit')}>Edit</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => handleStatusChange('completed')}>Mark as Complete</DropdownMenuItem>
+              <DropdownMenuItem 
+                onSelect={() => console.log('Delete')} 
+                className="text-red-600"
+              >
+                Delete
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <CardTitle className="text-lg">{milestone.title}</CardTitle>
+        <CardTitle id={`milestone-${milestone.id}-title`} className="text-lg">
+          {milestone.title}
+        </CardTitle>
         <div className="flex items-center gap-2 mt-1">
           <Badge variant="secondary">{milestone.type}</Badge>
-          <span className="text-sm text-muted-foreground">Due: {formatDate(milestone.deadline)}</span>
+          <time 
+            dateTime={milestone.deadline} 
+            className="text-sm text-muted-foreground"
+          >
+            Due: {formatDate(milestone.deadline)}
+          </time>
         </div>
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground mb-3">{milestone.description}</p>
-        <div className="flex justify-between text-sm mb-1">
+        <div className="flex justify-between text-sm mb-1" role="group" aria-label="Progress">
           <span>Progress</span>
-          <span>{milestone.progress}%</span>
+          <span aria-label={`${milestone.progress}% complete`}>{milestone.progress}%</span>
         </div>
-        <Progress value={milestone.progress} className="h-2" />
+        <Progress 
+          value={milestone.progress} 
+          className="h-2" 
+          aria-label={`${milestone.progress}% complete`}
+        />
         <div className="flex items-center gap-1 mt-3 text-sm text-muted-foreground">
-          <Clock className="h-3.5 w-3.5" />
+          <Clock className="h-3.5 w-3.5" aria-hidden="true" />
           <span>Est. time: {milestone.timeEstimate}</span>
         </div>
       </CardContent>
       <CardFooter>
-        <Button variant="outline" size="sm" className="w-full">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full"
+          onClick={handleProgressUpdate}
+          aria-label={`Update progress for ${milestone.title}`}
+        >
           Update Progress
         </Button>
       </CardFooter>
@@ -643,6 +671,19 @@ function MilestoneCard({ milestone }: { milestone: Milestone }) {
 }
 
 function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) {
+      throw new Error('Invalid date')
+    }
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      timeZone: 'UTC'
+    }).format(date)
+  } catch (error) {
+    console.error(`Error formatting date: ${dateString}`, error)
+    return 'Invalid date'
+  }
 }

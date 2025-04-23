@@ -1,34 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { type CheckedState } from "@radix-ui/react-checkbox"
-
-interface Resource {
-  id: string;
-  title: string;
-  provider: string;
-  type: 'course' | 'project' | 'certification' | 'book' | 'other';
-  duration: string;
-  difficulty: string;
-  rating: number;
-  cost: string;
-  url: string;
-  description: string;
-}
-
-interface LearningPath {
-  id: string;
-  title: string;
-  description: string;
-  progress: number;
-  totalHours: number;
-  remainingHours: number;
-  skills: string[];
-  courses: number;
-  projects: number;
-  certifications: number;
-  lastUpdated: string;
-}
+import type { Resource, LearningPath } from "./types"
 import Link from "next/link"
 import {
   BookOpen,

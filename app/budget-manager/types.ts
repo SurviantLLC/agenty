@@ -5,30 +5,18 @@ export interface Transaction {
   amount: number;
   type: 'income' | 'expense';
   description: string;
+  recurring?: boolean;
 }
 
 export interface CategoryTotals {
-  [key: string]: number
+  [key: string]: number;
 }
 
 export interface BudgetSummary {
-  totalIncome: number
-  totalExpenses: number
-  balance: number
-  savingsRate: number
-}
-
-export interface Transaction {
-  id: string
-  category: string
-  description: string
-  amount: number
-  date: string
-  recurring: boolean
-}
-
-export interface CategoryTotal {
-  [key: string]: number;
+  totalIncome: number;
+  totalExpenses: number;
+  balance: number;
+  savingsRate: number;
 }
 
 export interface MonthlyData {
