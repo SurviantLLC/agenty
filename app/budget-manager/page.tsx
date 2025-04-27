@@ -313,37 +313,270 @@ export default function BudgetManager() {
 
   return (
     <div className="container mx-auto py-8">
-      <div className="grid gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Budget Overview</CardTitle>
-            <CardDescription>
-              Track your income, expenses, and savings goals.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-3">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Income</CardTitle>
-                  <CardDescription>${budgetData.summary.totalIncome}</CardDescription>
-                </CardHeader>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Expenses</CardTitle>
-                  <CardDescription>${budgetData.summary.totalExpenses}</CardDescription>
-                </CardHeader>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Balance</CardTitle>
-                  <CardDescription>${budgetData.summary.balance}</CardDescription>
-                </CardHeader>
-              </Card>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-6">
+        {/* Overview Cards */}
+        <div className="grid gap-4 md:grid-cols-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-medium">Total Income</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-baseline justify-between">
+                <div className="text-2xl font-bold text-green-600">
+                  ${budgetData.summary.totalIncome.toLocaleString()}
+                </div>
+                <Badge className="bg-green-100 text-green-800">+{budgetData.summary.savingsRate}%</Badge>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-medium">Total Expenses</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-baseline justify-between">
+                <div className="text-2xl font-bold text-red-600">
+                  ${budgetData.summary.totalExpenses.toLocaleString()}
+                </div>
+                <Badge className="bg-red-100 text-red-800">92.5%</Badge>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-medium">Balance</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-baseline justify-between">
+                <div className="text-2xl font-bold text-blue-600">
+                  ${budgetData.summary.balance.toLocaleString()}
+                </div>
+                <Badge className="bg-blue-100 text-blue-800">Current</Badge>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-medium">ROI</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-baseline justify-between">
+                <div className="text-2xl font-bold text-purple-600">
+                  {budgetData.educationalROI.paybackPeriod.toFixed(1)}y
+                </div>
+                <Badge className="bg-purple-100 text-purple-800">Payback</Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content */}
+        <div className="grid gap-6 md:grid-cols-7">
+          {/* Transactions Section */}
+          <div className="md:col-span-4 space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Recent Transactions</CardTitle>
+                    <CardDescription>Track your spending and income</CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Select month" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="current">Current Month</SelectItem>
+                        <SelectItem value="previous">Previous Month</SelectItem>
+                        <SelectItem value="all">All Time</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button variant="outline" size="icon">
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead className="text-right">Amount</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filterTransactions([...budgetData.income, ...budgetData.expenses]
+                      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                      .slice(0, 10)
+                    ).map((transaction) => (
+                      <TableRow key={transaction.id}>
+                        <TableCell>{transaction.description}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{transaction.category}</Badge>
+                        </TableCell>
+                        <TableCell>{formatDate(transaction.date)}</TableCell>
+                        <TableCell className="text-right">
+                          <span className={transaction.type === "income" ? "text-green-600" : "text-red-600"}>
+                            {transaction.type === "income" ? "+" : "-"}${transaction.amount}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Educational ROI Analysis</CardTitle>
+                <CardDescription>Track your educational investment returns</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="font-medium">Total Investment</div>
+                      <div className="text-2xl font-bold">
+                        ${budgetData.educationalROI.totalInvestment.toLocaleString()}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="font-medium text-right">Projected Salary Increase</div>
+                      <div className="text-2xl font-bold text-green-600">
+                        +${budgetData.educationalROI.projectedSalaryIncrease.toLocaleString()}/yr
+                      </div>
+                    </div>
+                  </div>
+                  <Separator />
+                  <div>
+                    <div className="font-medium mb-2">Payback Period Progress</div>
+                    <Progress value={75} className="h-2" />
+                    <div className="flex justify-between mt-1 text-sm text-muted-foreground">
+                      <span>0 years</span>
+                      <span>{budgetData.educationalROI.paybackPeriod} years</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Savings Goals Section */}
+          <div className="md:col-span-3 space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Savings Goals</CardTitle>
+                    <CardDescription>Track your financial targets</CardDescription>
+                  </div>
+                  <Button size="sm">
+                    <Plus className="h-4 w-4 mr-1" /> Add Goal
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {budgetData.savingsGoals.map((goal) => (
+                    <div key={goal.id} className="space-y-2">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="font-medium">{goal.name}</div>
+                          <div className="text-sm text-muted-foreground">
+                            Due {formatDate(goal.deadline)}
+                          </div>
+                        </div>
+                        <Badge variant="outline">
+                          ${goal.monthlyContribution}/mo
+                        </Badge>
+                      </div>
+                      <div className="space-y-1">
+                        <Progress
+                          value={(goal.current / goal.target) * 100}
+                          className="h-2"
+                        />
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">
+                            ${goal.current.toLocaleString()} of ${goal.target.toLocaleString()}
+                          </span>
+                          <span className="font-medium">
+                            {Math.round((goal.current / goal.target) * 100)}%
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Projections</CardTitle>
+                <CardDescription>Financial outlook based on current trends</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="font-medium">6 Months</div>
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <div className="text-muted-foreground">Income</div>
+                        <div className="font-medium text-green-600">
+                          ${budgetData.projections.sixMonths.income.toLocaleString()}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground">Expenses</div>
+                        <div className="font-medium text-red-600">
+                          ${budgetData.projections.sixMonths.expenses.toLocaleString()}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground">Savings</div>
+                        <div className="font-medium">
+                          ${budgetData.projections.sixMonths.savings.toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <Separator />
+                  <div className="space-y-2">
+                    <div className="font-medium">1 Year</div>
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <div className="text-muted-foreground">Income</div>
+                        <div className="font-medium text-green-600">
+                          ${budgetData.projections.oneYear.income.toLocaleString()}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground">Expenses</div>
+                        <div className="font-medium text-red-600">
+                          ${budgetData.projections.oneYear.expenses.toLocaleString()}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground">Savings</div>
+                        <div className="font-medium">
+                          ${budgetData.projections.oneYear.savings.toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   )

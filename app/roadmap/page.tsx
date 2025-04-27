@@ -31,8 +31,52 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 export default function RoadmapPlanner() {
   const [zoomLevel, setZoomLevel] = useState<"months" | "quarters" | "years">("quarters")
-  const [currentView, setCurrentView] = useState("2024-Q2")
-  const [showCompleted, setShowCompleted] = useState(true)
+  const [currentView, setCurrentView] = useState<string>("2024-Q2")
+  const [showCompleted, setShowCompleted] = useState<boolean>(true)
+
+  // Handle zoom level changes
+  const handleZoomChange = (newZoom: "months" | "quarters" | "years") => {
+    setZoomLevel(newZoom)
+    // Update current view based on zoom level
+    const now = new Date()
+    switch (newZoom) {
+      case "months":
+        setCurrentView(now.toISOString().slice(0, 7)) // YYYY-MM
+        break
+      case "quarters":
+        const quarter = Math.floor(now.getMonth() / 3) + 1
+        setCurrentView(`${now.getFullYear()}-Q${quarter}`)
+        break
+      case "years":
+        setCurrentView(now.getFullYear().toString())
+        break
+    }
+  }
+
+  // Navigate between views
+  const navigateView = (direction: "prev" | "next") => {
+    const [year, period] = currentView.split(/-Q?/)
+    const numYear = parseInt(year)
+    
+    switch (zoomLevel) {
+      case "months":
+        const date = new Date(currentView + "-01")
+        date.setMonth(date.getMonth() + (direction === "next" ? 1 : -1))
+        setCurrentView(date.toISOString().slice(0, 7))
+        break
+      case "quarters":
+        const quarter = parseInt(period)
+        if (direction === "next") {
+          setCurrentView(quarter === 4 ? `${numYear + 1}-Q1` : `${numYear}-Q${quarter + 1}`)
+        } else {
+          setCurrentView(quarter === 1 ? `${numYear - 1}-Q4` : `${numYear}-Q${quarter - 1}`)
+        }
+        break
+      case "years":
+        setCurrentView((numYear + (direction === "next" ? 1 : -1)).toString())
+        break
+    }
+  }
 
   // Sample roadmap data
   const roadmapData: RoadmapData = {
@@ -219,8 +263,21 @@ export default function RoadmapPlanner() {
       {/* Roadmap Controls */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon">
-            <ChevronLeft className="h-4 w-4" />
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handleZoomChange(zoomLevel === "years" ? "quarters" : "months")}
+            aria-label="Zoom in"
+          >
+            <ZoomIn className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handleZoomChange(zoomLevel === "months" ? "quarters" : "years")}
+            aria-label="Zoom out"
+          >
+            <ZoomOut className="h-4 w-4" />
           </Button>
           <Select value={currentView} onValueChange={setCurrentView}>
             <SelectTrigger className="w-[180px]">

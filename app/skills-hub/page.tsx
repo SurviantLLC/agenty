@@ -36,10 +36,35 @@ interface CareerPath {
 }
 
 export default function SkillsHub() {
-  const [selectedCareer, setSelectedCareer] = useState("data-scientist")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [showOnlyGaps, setShowOnlyGaps] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState("all")
+  const [selectedCareer, setSelectedCareer] = useState<string>("data-scientist")
+  const [searchQuery, setSearchQuery] = useState<string>("")
+  const [showOnlyGaps, setShowOnlyGaps] = useState<boolean>(false)
+  const [selectedCategory, setSelectedCategory] = useState<string>("all")
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  // Debounced search handler
+  const handleSearchChange = (value: string) => {
+    setIsLoading(true)
+    const timeoutId = setTimeout(() => {
+      setSearchQuery(value)
+      setIsLoading(false)
+    }, 300)
+    return () => clearTimeout(timeoutId)
+  }
+
+  // Category change handler with validation
+  const handleCategoryChange = (category: string) => {
+    if (["all", "programming", "data", "ai", "infrastructure"].includes(category)) {
+      setSelectedCategory(category)
+    }
+  }
+
+  // Career change handler with validation
+  const handleCareerChange = (career: string) => {
+    if (["data-scientist", "data-analyst", "ml-engineer"].includes(career)) {
+      setSelectedCareer(career)
+    }
+  }
 
   // Sample skills data
   const skillsData = {
@@ -244,24 +269,34 @@ export default function SkillsHub() {
     },
   ]
 
-  // Get all skills in a flat array
-  const allSkills: Skill[] = [...skillsData.technical, ...skillsData.soft, ...skillsData.domain]
+// Filter skills based on search query, category, and gap setting
+const filterSkills = (skills: Skill[]): Skill[] => {
+  if (!Array.isArray(skills)) return []
+  
+  const searchTerm = searchQuery.toLowerCase().trim()
+  return skills.filter(skill => {
+    if (!skill) return false
 
-  // Filter skills based on search query, category, and gap setting
-  function filterSkills(skills: Skill[]): Skill[] {
-    return skills.filter((skill: Skill) => {
-      const matchesSearch = skill.name.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesCategory = selectedCategory === "all" || skill.category === selectedCategory
-      const matchesGap = !showOnlyGaps || skill.userLevel < skill.targetLevel
-      return matchesSearch && matchesCategory && matchesGap
-    })
-  }
+    const matchesSearch = searchTerm === "" || 
+      skill.name.toLowerCase().includes(searchTerm) ||
+      skill.description.toLowerCase().includes(searchTerm)
 
-  // Get the selected career
-  const selectedCareerData = careerPaths.find((career) => career.id === selectedCareer)
+    const matchesCategory = selectedCategory === "all" || 
+      skill.category === selectedCategory
 
-  // Calculate skill gaps for the selected career
-  const getSkillGapsForCareer = () => {
+    const hasGap = skill.targetLevel > skill.userLevel
+    const matchesGaps = !showOnlyGaps || hasGap
+
+    return matchesSearch && matchesCategory && matchesGaps
+  })
+}
+
+// Get the selected career
+const selectedCareerData = careerPaths.find((career) => career.id === selectedCareer)
+
+// Calculate skill gaps for the selected career
+const getSkillGapsForCareer = (): Skill[] => {
+  try {
     if (!selectedCareerData) return []
 
     return selectedCareerData.keySkills
@@ -275,26 +310,51 @@ export default function SkillsHub() {
       })
       .filter((skill) => skill !== null)
       .sort((a, b) => b.gap - a.gap)
+  } catch (error) {
+    console.error('Error calculating skill gaps:', error)
+    return []
   }
+}
 
-  const skillGaps = getSkillGapsForCareer()
+const skillGaps = getSkillGapsForCareer()
 
-  // Calculate overall skill proficiency
-  const calculateOverallProficiency = (skills: Skill[]): number => {
-    if (skills.length === 0) return 0
-    const sum = skills.reduce((acc, skill) => acc + skill.userLevel, 0)
-    return Math.round(sum / skills.length)
+// Get all skills in a flat array
+const allSkills: Skill[] = [...skillsData.technical, ...skillsData.soft, ...skillsData.domain]
+
+// Calculate overall skill proficiency
+const calculateOverallProficiency = (skills: Skill[]): number => {
+  try {
+    if (!Array.isArray(skills) || skills.length === 0) return 0
+
+    const validSkills = skills.filter(skill => 
+      skill && typeof skill.userLevel === "number" && 
+      skill.userLevel >= 0 && skill.userLevel <= 100
+    )
+
+    if (validSkills.length === 0) return 0
+
+    const sum = validSkills.reduce((acc, skill) => acc + skill.userLevel, 0)
+    return Math.round(sum / validSkills.length)
+  } catch (error) {
+    console.error('Error calculating proficiency:', error)
+    return 0
   }
+}
 
-  const technicalProficiency = calculateOverallProficiency(skillsData.technical)
-  const softProficiency = calculateOverallProficiency(skillsData.soft)
-  const domainProficiency = calculateOverallProficiency(skillsData.domain)
-  const overallProficiency = calculateOverallProficiency(allSkills)
+// Calculate proficiency for each category
+const technicalProficiency = calculateOverallProficiency(skillsData.technical)
+const softProficiency = calculateOverallProficiency(skillsData.soft)
+const domainProficiency = calculateOverallProficiency(skillsData.domain)
+const overallProficiency = calculateOverallProficiency(allSkills)
 
   // Priority recommendations based on gaps and importance
   const priorityRecommendations = allSkills
-    .filter((skill) => skill.importance === "high" && skill.targetLevel - skill.userLevel > 15)
-    .sort((a, b) => b.targetLevel - b.userLevel - (a.targetLevel - a.userLevel))
+    .filter((skill: Skill) => skill.targetLevel - skill.userLevel > 15)
+    .sort((a: Skill, b: Skill) => {
+      const gapA = a.targetLevel - a.userLevel
+      const gapB = b.targetLevel - b.userLevel
+      return gapB - gapA
+    })
     .slice(0, 3)
 
   return (
@@ -497,11 +557,15 @@ export default function SkillsHub() {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  {skill.industries.map((industry) => (
-                    <Badge key={industry} variant="secondary">
-                      {industry}
-                    </Badge>
-                  ))}
+                  {skill.industries.map((industry: string) => (
+                  <Badge
+                    key={`${skill.id}-${industry}`}
+                    variant="secondary"
+                    className="mr-1"
+                  >
+                    {industry}
+                  </Badge>
+                ))}
                 </div>
 
                 <div className="flex items-center justify-between">

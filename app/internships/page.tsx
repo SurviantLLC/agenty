@@ -68,13 +68,13 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function InternshipExplorer() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedLocation, setSelectedLocation] = useState("all")
-  const [selectedIndustry, setSelectedIndustry] = useState("all")
-  const [selectedDuration, setSelectedDuration] = useState("all")
-  const [selectedPaid, setSelectedPaid] = useState("all")
-  const [sortBy, setSortBy] = useState("match")
-  const [showOnlyMatching, setShowOnlyMatching] = useState(false)
+  const [searchQuery, setSearchQuery] = useState<string>("")
+  const [selectedLocation, setSelectedLocation] = useState<string>("all")
+  const [selectedIndustry, setSelectedIndustry] = useState<string>("all")
+  const [selectedDuration, setSelectedDuration] = useState<string>("all")
+  const [selectedPaid, setSelectedPaid] = useState<string>("all")
+  const [sortBy, setSortBy] = useState<SortKey>("match")
+  const [showOnlyMatching, setShowOnlyMatching] = useState<boolean>(false)
 
   // Sample internships data
   const sortInternships = (a: Internship, b: Internship): number => {
@@ -810,6 +810,7 @@ export default function InternshipExplorer() {
               className="pl-8 w-full md:w-[250px] h-9"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label="Search internships"
             />
           </div>
 
@@ -829,7 +830,7 @@ export default function InternshipExplorer() {
 
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size="sm" className="h-9">
+              <Button variant="outline" size="sm" aria-label="Filter internships">
                 <Filter className="h-4 w-4 mr-2" />
                 Filter
               </Button>
@@ -986,7 +987,7 @@ export default function InternshipExplorer() {
                 <div className="col-span-1 flex justify-end">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="More options">
                         <MoreHorizontal className="h-4 w-4" />
                         <span className="sr-only">Open menu</span>
                       </Button>
@@ -1053,7 +1054,7 @@ export default function InternshipExplorer() {
                       <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500 ml-2" />
                       <span>{template.rating}</span>
                     </div>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" aria-label="Download template">
                       Download
                     </Button>
                   </div>

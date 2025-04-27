@@ -35,48 +35,62 @@ export default function ProgramEvaluationPage() {
         <p className="text-muted-foreground">Compare and analyze academic programs to find your best fit</p>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="flex-1">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input type="search" placeholder="Search programs or majors..." className="pl-8 bg-background" />
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="md:col-span-2">
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground -translate-y-1/2" />
+            <Input
+              type="search"
+              placeholder="Search programs or majors..."
+              className="pl-9 w-full"
+              aria-label="Search programs"
+            />
           </div>
         </div>
-        <Select defaultValue="all">
-          <SelectTrigger className="w-full md:w-[180px]">
-            <SelectValue placeholder="Program Level" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Levels</SelectItem>
-            <SelectItem value="undergraduate">Undergraduate</SelectItem>
-            <SelectItem value="graduate">Graduate</SelectItem>
-            <SelectItem value="phd">PhD</SelectItem>
-            <SelectItem value="certificate">Certificate</SelectItem>
-          </SelectContent>
-        </Select>
-        <Button variant="outline" className="gap-2">
-          <Filter className="h-4 w-4" /> More Filters
-        </Button>
-        <Button>Compare Selected</Button>
+        <div className="md:col-span-1">
+          <Select defaultValue="all">
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Program Level" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Levels</SelectItem>
+              <SelectItem value="undergraduate">Undergraduate</SelectItem>
+              <SelectItem value="graduate">Graduate</SelectItem>
+              <SelectItem value="phd">PhD</SelectItem>
+              <SelectItem value="certificate">Certificate</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex gap-2 md:col-span-1">
+          <Button variant="outline" className="flex-1 md:flex-none gap-2" aria-label="Show more filters">
+            <Filter className="h-4 w-4" />
+            <span className="hidden md:inline">More Filters</span>
+          </Button>
+          <Button className="flex-1 md:flex-none" aria-label="Compare selected programs">
+            <span className="hidden md:inline">Compare</span>
+            <span className="md:hidden">Compare Selected</span>
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="col-span-1 lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Computer Science (B.S.)</span>
-              <Badge className="ml-2 bg-green-100 text-green-800 hover:bg-green-100">96% Match</Badge>
-            </CardTitle>
-            <CardDescription>School of Engineering, Stanford University</CardDescription>
-          </CardHeader>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+        <Card className="col-span-1 lg:col-span-2 h-fit">
+          <div className="overflow-x-auto">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Computer Science (B.S.)</span>
+                <Badge className="ml-2 bg-green-100 text-green-800 hover:bg-green-100">96% Match</Badge>
+              </CardTitle>
+              <CardDescription>School of Engineering, Stanford University</CardDescription>
+            </CardHeader>
           <CardContent className="space-y-6">
             <Tabs defaultValue="overview">
-              <TabsList className="grid grid-cols-5 mb-4">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
-                <TabsTrigger value="outcomes">Outcomes</TabsTrigger>
-                <TabsTrigger value="faculty">Faculty</TabsTrigger>
-                <TabsTrigger value="research">Research</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 mb-4 gap-2">
+                <TabsTrigger value="overview" className="whitespace-nowrap">Overview</TabsTrigger>
+                <TabsTrigger value="curriculum" className="whitespace-nowrap">Curriculum</TabsTrigger>
+                <TabsTrigger value="outcomes" className="whitespace-nowrap">Outcomes</TabsTrigger>
+                <TabsTrigger value="faculty" className="whitespace-nowrap">Faculty</TabsTrigger>
+                <TabsTrigger value="research" className="whitespace-nowrap">Research</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-4">
@@ -432,6 +446,7 @@ export default function ProgramEvaluationPage() {
               </TabsContent>
             </Tabs>
           </CardContent>
+          </div>
         </Card>
 
         <div className="space-y-6">
@@ -481,63 +496,62 @@ export default function ProgramEvaluationPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>ROI Calculator</CardTitle>
-              <CardDescription>Estimate your return on investment</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Expected Annual Salary</label>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">$80K</span>
-                  <Slider defaultValue={[110]} max={200} min={80} step={5} className="flex-1" />
-                  <span className="text-sm">$200K</span>
-                </div>
-                <div className="text-right text-sm font-medium">$110,000</div>
+        <Card>
+          <CardHeader>
+            <CardTitle>ROI Calculator</CardTitle>
+            <CardDescription>Estimate your return on investment</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Expected Annual Salary</label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm">$80K</span>
+                <Slider defaultValue={[110]} max={200} min={80} step={5} className="flex-1" />
+                <span className="text-sm">$200K</span>
               </div>
+              <div className="text-right text-sm font-medium">$110,000</div>
+            </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Years to Calculate</label>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">5</span>
-                  <Slider defaultValue={[10]} max={30} min={5} step={5} className="flex-1" />
-                  <span className="text-sm">30</span>
-                </div>
-                <div className="text-right text-sm font-medium">10 years</div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Years to Calculate</label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm">5</span>
+                <Slider defaultValue={[10]} max={30} min={5} step={5} className="flex-1" />
+                <span className="text-sm">30</span>
               </div>
+              <div className="text-right text-sm font-medium">10 years</div>
+            </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Financial Aid Estimate</label>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">$0</span>
-                  <Slider defaultValue={[30000]} max={60000} min={0} step={5000} className="flex-1" />
-                  <span className="text-sm">$60K</span>
-                </div>
-                <div className="text-right text-sm font-medium">$30,000</div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Financial Aid Estimate</label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm">$0</span>
+                <Slider defaultValue={[30000]} max={60000} min={0} step={5000} className="flex-1" />
+                <span className="text-sm">$60K</span>
               </div>
+              <div className="text-right text-sm font-medium">$30,000</div>
+            </div>
 
-              <Separator className="my-4" />
+            <Separator className="my-4" />
 
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm">Total Program Cost</span>
-                  <span className="font-medium">$105,000</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm">10-Year Earnings</span>
-                  <span className="font-medium">$1,320,000</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm">10-Year ROI</span>
-                  <span className="font-medium text-green-600">+$845,000</span>
-                </div>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm">Total Program Cost</span>
+                <span className="font-medium">$105,000</span>
               </div>
+              <div className="flex justify-between">
+                <span className="text-sm">10-Year Earnings</span>
+                <span className="font-medium">$1,320,000</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm">10-Year ROI</span>
+                <span className="font-medium text-green-600">+$845,000</span>
+              </div>
+            </div>
 
-              <Button className="w-full">Generate Detailed Report</Button>
-            </CardContent>
-          </Card>
-        </div>
+            <Button className="w-full">Generate Detailed Report</Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
